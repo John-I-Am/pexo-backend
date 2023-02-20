@@ -1,4 +1,5 @@
 import "express-async-errors";
+import sslRedirect from "heroku-ssl-redirect";
 import express from "express";
 import cors from "cors";
 import config from "./utils/config";
@@ -26,21 +27,10 @@ start();
 const app = express();
 app.use(express.static("build"));
 app.use(middleware.requestLogger);
+app.use(sslRedirect());
 
 app.use(cors());
 app.use(express.json());
-
-// eslint-disable-next-line consistent-return
-function httpsRedirectMiddleware(req: any, res: any, next: any) {
-  console.log("lolololo");
-  if (req.headers["x-forwarded-proto"] !== "https" && process.env.NODE_ENV === "production") {
-    return res.redirect(`https://${req.hostname}${req.url}`);
-  }
-  next();
-}
-
-// eslint-disable-next-line consistent-return
-app.use(httpsRedirectMiddleware);
 
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);

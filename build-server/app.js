@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("express-async-errors");
+const heroku_ssl_redirect_1 = __importDefault(require("heroku-ssl-redirect"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const config_1 = __importDefault(require("./utils/config"));
@@ -35,18 +36,9 @@ start();
 const app = (0, express_1.default)();
 app.use(express_1.default.static("build"));
 app.use(middleware_1.default.requestLogger);
+app.use((0, heroku_ssl_redirect_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-// eslint-disable-next-line consistent-return
-function httpsRedirectMiddleware(req, res, next) {
-    console.log("lolololo");
-    if (req.headers["x-forwarded-proto"] !== "https" && process.env.NODE_ENV === "production") {
-        return res.redirect(`https://${req.hostname}${req.url}`);
-    }
-    next();
-}
-// eslint-disable-next-line consistent-return
-app.use(httpsRedirectMiddleware);
 app.use("/api/users", users_1.default);
 app.use("/api/login", login_1.default);
 app.use("/api/decks", decks_1.default);
